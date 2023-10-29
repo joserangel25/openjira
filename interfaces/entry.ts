@@ -1,7 +1,7 @@
 export interface Entry {
   _id: string
   description: string
-  createdAd: number
+  createdAt: number
   status: EntryStatus
 }
 

@@ -20,7 +20,6 @@ export const EntryList = ({ status }: Props) => {
 
   const onDrop = (e: DragEvent<HTMLDivElement>) => {
     const id = e.dataTransfer.getData('text')
-    console.log({ id })
     const entry = entries.find(entry => entry._id === id)!
     entry.status = status
     updateEntry(entry)
@@ -31,18 +30,16 @@ export const EntryList = ({ status }: Props) => {
     <div
       onDrop={onDrop}
       onDragOver={(e) => e.preventDefault()}
-      className={isDragging ? styles.dragging : ''}
+      style={{ flexGrow: 1, overflowY: "auto", padding: 10 }}
+      className={`${styles.bgColor} ${isDragging ? styles.dragging : ''}`}
     >
-      <Paper sx={{ height: 'calc(100vh - 200px)', overflowY: "auto", backgroundColor: 'transparent', padding: 1 }}>
-
-        <List sx={{ opacity: isDragging ? 0.3 : 1, transition: 'all .3s' }}>
-          {
-            entriesToView.map((entry) => (
-              <EntryCard key={entry._id} entry={entry} />
-            ))
-          }
-        </List>
-      </Paper>
-    </div>
+      <List sx={{ opacity: isDragging ? 0.3 : 1, transition: 'all .3s' }}>
+        {
+          entriesToView.map((entry) => (
+            <EntryCard key={entry._id} entry={entry} />
+          ))
+        }
+      </List>
+    </div >
   )
 }

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Grid, Typography } from "@mui/material";
+import { Card, CardHeader, Grid } from "@mui/material";
 import { Layout } from "@/components/layouts";
 import { EntryList, NewEntry } from "@/components/ui";
 
@@ -7,7 +7,7 @@ export default function Home() {
     <Layout title="Open Jira">
       <Grid container spacing={2}>
         <Grid item xs={12} sm={4}>
-          <Card sx={{ height: 'calc(100vh - 100px)' }}>
+          <Card sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
             <CardHeader title="Pendientes" />
             {/* Agregar una tarea */}
             <NewEntry />
@@ -17,7 +17,7 @@ export default function Home() {
         </Grid>
 
         <Grid item xs={12} sm={4}>
-          <Card sx={{ height: 'calc(100vh - 100px)' }}>
+          <Card sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
             <CardHeader title="En Progreso" />
             {/* Agregar una tarea */}
 
@@ -27,7 +27,7 @@ export default function Home() {
         </Grid>
 
         <Grid item xs={12} sm={4}>
-          <Card sx={{ height: 'calc(100vh - 100px)' }}>
+          <Card sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column' }}>
             <CardHeader title="Terminadas" />
             {/* Agregar una tarea */}
 

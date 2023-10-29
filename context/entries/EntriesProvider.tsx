@@ -1,33 +1,15 @@
-import { useReducer, FC } from 'react'
+import { useReducer, FC, useEffect } from 'react'
 import { entriesReducer, EntriesContext } from './'
-import { Entry } from '@/interfaces'
-import { generateId } from '@/helpers'
+import type { Entry } from '@/interfaces'
+import { entriesApi } from '@/apis'
+import { useSnackbar } from 'notistack'
 
 export interface EntriesState {
   entries: Entry[]
 }
 
 const Entries_INITIAL_STATE: EntriesState = {
-  entries: [
-    {
-      _id: generateId(),
-      description: 'Pendiente: Esta es una descripcion',
-      createdAd: Date.now() - 1000000,
-      status: 'pending'
-    },
-    {
-      _id: generateId(),
-      description: 'En progreso: Lorem ipsum jose darndkjas lahsdfkue fadskhlf adsfasd',
-      createdAd: Date.now(),
-      status: 'in-progress'
-    },
-    {
-      _id: generateId(),
-      description: 'Terminada: Esta es una descripcion',
-      createdAd: Date.now() - 100000,
-      status: 'finished'
-    }
-  ]
+  entries: []
 }
 
 interface Props {
@@ -37,27 +19,68 @@ interface Props {
 export const EntriesProvider: FC<Props> = ({ children }) => {
 
   const [state, dispatch] = useReducer(entriesReducer, Entries_INITIAL_STATE)
-
-  const addNewEntry = (description: string) => {
-    const entry: Entry = {
-      _id: generateId(),
-      status: "pending",
-      description,
-      createdAd: Date.now()
+  const { enqueueSnackbar } = useSnackbar()
+  useEffect(() => {
+    const refreshEntries = async () => {
+      try {
+        const { data } = await entriesApi<Entry[]>('/entries')
+        dispatch({ type: '[Entry] - Refresh Data', payload: data })
+      } catch (error) {
+        console.log(error)
+      }
     }
-    dispatch({ type: '[Entry] - Add Entry', payload: entry })
+    refreshEntries()
+  }, [])
+
+  const showAlertFn = (msg: string) => {
+    enqueueSnackbar(msg, {
+      variant: 'success',
+      autoHideDuration: 1500,
+      anchorOrigin: {
+        vertical: 'top',
+        horizontal: 'right'
+      }
+    })
   }
 
-  const updateEntry = (entry: Entry) => {
-    dispatch({ type: '[Entry] - Updated Entry', payload: entry })
+  const addNewEntry = async (description: string) => {
+    const { data } = await entriesApi.post<Entry>('/entries', { description })
+    dispatch({ type: '[Entry] - Add Entry', payload: data })
+  }
+
+  const updateEntry = async (entry: Entry, showAlert = false) => {
+    const { _id, description, status } = entry
+    try {
+      const { data } = await entriesApi.put<Entry>(`/entries/${_id}`, { description, status })
+      dispatch({ type: '[Entry] - Updated Entry', payload: data })
+      if (showAlert) {
+        showAlertFn('Entrada actualizada correctamente')
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const deleteEntry = async (id: string) => {
+    try {
+      const { data } = await entriesApi.delete(`/entries/${id}`)
+      dispatch({ type: '[Entry] - Detele Entry', payload: id })
+      showAlertFn(data.msg)
+    } catch (error) {
+      console.log(error)
+    }
+
   }
   return (
     <EntriesContext.Provider value={{
       ...state,
       addNewEntry,
-      updateEntry
+      updateEntry,
+      deleteEntry
     }}>
       {children}
     </EntriesContext.Provider>
   )
 }
+
+
